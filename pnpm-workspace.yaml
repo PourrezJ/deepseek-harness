@@ -95,6 +95,12 @@ minimumReleaseAgeExclude:
   - '@trycua/cua-driver-win32-x64-msvc@0.28.0'
   - '@trycua/cua-driver@0.28.0'
 patchedDependencies:
+  # Adds opencode-go "deepseek-v4.1-flash" to pi-ai's generated catalog
+  # (models.dev lists it; pi-ai 0.85.1 was generated before it did). Drop this
+  # patch at the first pi-ai release that regenerates the catalog with the
+  # model; packages/llm/llm-pi-ai tests/catalog.spec.ts fails when the entry is
+  # missing, naming the patch.
+  '@earendil-works/pi-ai@0.85.1': patches/@earendil-works__pi-ai@0.85.1.patch
   '@electron/osx-sign@1.3.3': patches/@electron__osx-sign@1.3.3.patch
   '@yao-pkg/pkg@6.21.0': patches/@yao-pkg__pkg@6.21.0.patch
   node-pty@1.2.0-beta.15: patches/node-pty@1.2.0-beta.15.patch
