@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-09-10-pi-ai-opencode-go-catalog-patch.md
-2026-09-10-pi-ai-opencode-go-catalog-patch.md: 05163d1843be4cc5d604abccec81da588f953339
-2026-09-10-pi-ai-opencode-go-catalog-patch.zh.md: f4103c48230f1360a91c33456402074e75188617
+2026-09-10-pi-ai-opencode-go-catalog-patch.md: e42af32243779821da1aa030aa622602b8b84675
+2026-09-10-pi-ai-opencode-go-catalog-patch.zh.md: 74c18b6fc1c9a82d1d339bd6532c7a1e8fdf43a7

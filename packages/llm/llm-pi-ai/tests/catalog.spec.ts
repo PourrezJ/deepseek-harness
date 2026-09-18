@@ -455,7 +455,7 @@ describe('catalog routes with per-model configuration', () => {
       .toEqual(getBuiltinModels('deepseek').map(model => model.id).sort())
   })
 
-  it('serves the opencode-go model the pi-ai catalog patch adds', () => {
+  it('serves the refreshed opencode-go catalog from the pi-ai patch', () => {
     const models = resolveProfiles({ 'opencode-go': {} }).get('opencode-go')?.piProvider?.getModels() ?? []
     const flash = models.find(model => model.id === 'deepseek-v4.1-flash')
     if (flash === undefined) {
@@ -473,6 +473,7 @@ describe('catalog routes with per-model configuration', () => {
     expect(flash.contextWindow).toBe(1_000_000)
     expect(flash.maxTokens).toBe(384_000)
     expect(flash.reasoning).toBe(true)
+    expect(models.some(model => model.id === 'omen-alpha')).toBe(false)
   })
 
   it('overrides one catalog model field and defaults the rest from the catalog', async () => {

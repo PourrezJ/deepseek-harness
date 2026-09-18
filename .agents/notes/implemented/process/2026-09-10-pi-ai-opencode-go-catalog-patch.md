@@ -1,4 +1,4 @@
-# Agent Note: Patch pi-ai's generated opencode-go catalog for deepseek-v4.1-flash
+# Agent Note: Refresh pi-ai's generated opencode-go catalog
 
 Status: implemented
 
@@ -6,15 +6,15 @@ English | [中文](2026-09-10-pi-ai-opencode-go-catalog-patch.zh.md)
 
 ## Problem
 
-OpenCode Go added DeepSeek V4.1 Flash (`deepseek-v4.1-flash`) to its endpoint ([endpoints](https://opencode.ai/docs/go/#endpoints)), and models.dev carries the entry, but `@earendil-works/pi-ai@0.85.1` generated its catalog data on 2026-09-05, before the model was registered upstream. The `opencode-go` route serves its model list straight from that generated catalog, so the model was absent from every selector the harness offers.
+OpenCode Go's public model set changed after `@earendil-works/pi-ai@0.85.1` generated its catalog data on 2026-09-05. DeepSeek V4.1 Flash (`deepseek-v4.1-flash`) was added, while Omen Alpha (`omen-alpha`) is no longer in the public Go model list. The `opencode-go` route serves its model list straight from that generated catalog, so Harness otherwise omits the new model and keeps offering the retired one.
 
 ## Decision
 
-A [pnpm patch](../../../../patches/@earendil-works__pi-ai@0.85.1.patch) adds the flattened `deepseek-v4.1-flash` entry to the installed package's `dist/providers/data/opencode-go.json`, derived from models.dev and mirroring the shipped `deepseek-v4-flash-vision-exp` entry: `openai-completions` at `https://opencode.ai/zen/go/v1`, text and image input, a 1,000,000-token context window, a 384,000-token output cap, the DeepSeek compat block, and the low, high, and max thinking levels. A [catalog spec](../../../../packages/llm/llm-pi-ai/tests/catalog.spec.ts) case serves the route with no configuration and fails, naming the patch, while the entry is missing. [pnpm-workspace.yaml](../../../../pnpm-workspace.yaml) states the drop condition beside the patch registration.
+A [pnpm patch](../../../../patches/@earendil-works__pi-ai@0.85.1.patch) refreshes the installed package's `dist/providers/data/opencode-go.json`: it adds the generated `deepseek-v4.1-flash` entry and removes `omen-alpha`. The new DeepSeek entry is the current generated pi-ai data: `openai-completions` at `https://opencode.ai/zen/go/v1`, text and image input, a 1,000,000-token context window, a 384,000-token output cap, the DeepSeek compat block, and low, high, and max thinking levels. A [catalog spec](../../../../packages/llm/llm-pi-ai/tests/catalog.spec.ts) guards both changes. [pnpm-workspace.yaml](../../../../pnpm-workspace.yaml) states the drop condition beside the patch registration.
 
 ## Alternatives considered
 
-**Bump pi-ai.** 0.85.1 is the newest release; no published version carries the model.
+**Bump pi-ai.** 0.85.1 is the newest release; no published version carries the refreshed set.
 
 **Declare the model in settings configuration.** A `models` entry on a catalog route already accepts a model the installed catalog lacks, but that is per-deployment configuration: every deployment repeats the declaration, and the model still never appears in the offered directory.
 
@@ -22,4 +22,4 @@ A [pnpm patch](../../../../patches/@earendil-works__pi-ai@0.85.1.patch) adds the
 
 ## Consequences
 
-The model is selectable wherever the `opencode-go` route is, with no configuration. The patch is registered against `@earendil-works/pi-ai@0.85.1`, so a later pi-ai bump installs unpatched and the guard test decides: it passes once upstream's own catalog carries the model and fails while it does not, naming the patch to re-apply or drop. The patched cost figures can drift from models.dev updates; the harness never reads pi-ai's cost metadata, so that drift is inert.
+DeepSeek V4.1 Flash is selectable wherever the `opencode-go` route is, and Omen Alpha no longer appears in that catalog. The patch is registered against `@earendil-works/pi-ai@0.85.1`, so a later pi-ai bump installs unpatched and the guard test decides whether the patch can be dropped. The patch changes model availability only; existing 0.85.1 metadata for unchanged Go models stays untouched.
