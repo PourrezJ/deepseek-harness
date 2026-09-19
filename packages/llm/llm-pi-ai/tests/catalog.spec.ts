@@ -455,6 +455,27 @@ describe('catalog routes with per-model configuration', () => {
       .toEqual(getBuiltinModels('deepseek').map(model => model.id).sort())
   })
 
+  it('serves the refreshed opencode-go catalog from the pi-ai patch', () => {
+    const models = resolveProfiles({ 'opencode-go': {} }).get('opencode-go')?.piProvider?.getModels() ?? []
+    const flash = models.find(model => model.id === 'deepseek-v4.1-flash')
+    if (flash === undefined) {
+      throw new Error('the installed catalog ships no opencode-go "deepseek-v4.1-flash"; re-apply'
+        + ' patches/@earendil-works__pi-ai@0.85.1.patch, or drop the patch if pi-ai now ships the model')
+    }
+
+    // Fields a resolution without the patch would not get right: the display
+    // name and vision support upstream documents, and the protocol and
+    // endpoint the shipped DeepSeek models on the route already use.
+    expect(flash.name).toBe('DeepSeek V4.1 Flash')
+    expect(flash.api).toBe('openai-completions')
+    expect(flash.baseUrl).toBe('https://opencode.ai/zen/go/v1')
+    expect(flash.input).toEqual(['text', 'image'])
+    expect(flash.contextWindow).toBe(1_000_000)
+    expect(flash.maxTokens).toBe(384_000)
+    expect(flash.reasoning).toBe(true)
+    expect(models.some(model => model.id === 'omen-alpha')).toBe(false)
+  })
+
   it('overrides one catalog model field and defaults the rest from the catalog', async () => {
     const server = await mockServer([])
     const [catalogModel] = getBuiltinModels('deepseek')

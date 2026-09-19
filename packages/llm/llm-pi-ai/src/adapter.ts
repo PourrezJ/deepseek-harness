@@ -211,6 +211,22 @@ function requestHeaders(headers: Readonly<Record<string, string>> | undefined): 
   }
 }
 
+/** The header OpenCode Go routes and prompt-caches a conversation by. */
+const OPENCODE_GO_SESSION_HEADER = 'x-opencode-session'
+
+/** Derive the OpenCode Go session header from the seam session id; a configured header wins. */
+function opencodeGoSessionHeaders(
+  provider: string,
+  sessionId: GenerateOptions['sessionId'],
+  configured: Readonly<Record<string, string>> | undefined,
+): Record<string, string> {
+  if (provider !== 'opencode-go' || sessionId === undefined) return {}
+  const overridden = Object.keys(configured ?? {})
+    .some(name => name.toLowerCase() === OPENCODE_GO_SESSION_HEADER)
+  if (overridden) return {}
+  return { [OPENCODE_GO_SESSION_HEADER]: String(sessionId) }
+}
+
 /**
  * pi-ai-backed multi-provider adapter. Each operation reads the current
  * profiles, so a configuration change reaches the next request without a
@@ -385,7 +401,10 @@ export class PiAiAdapter extends LlmAdapter {
         signal: watchdog.signal,
         // Profile headers are deployment-owned; attribution names are
         // Harness-owned and therefore win collisions.
-        headers: requestHeaders(profile.headers),
+        headers: {
+          ...opencodeGoSessionHeaders(options.provider, options.sessionId, profile.headers),
+          ...requestHeaders(profile.headers),
+        },
       })
       const iterator = toStreamChunks(events, model.contextWindow, options.signal, model.id)[Symbol.asyncIterator]()
       let exhausted = false
