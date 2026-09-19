@@ -230,6 +230,14 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Owns Session commands, cold reads, durable-event following, live control state, model catalogs, workspace opening, and Agent activation policy.',
   },
   {
+    key: 'harnessSupervisorMcp',
+    pkg: 'host-harness-supervisor-mcp',
+    title: 'Loopback Harness supervision MCP',
+    mode: 'core',
+    consumers: [],
+    note: 'Projects a bounded MCP supervision surface over the existing Session Controller for authenticated tunnel clients; it does not own sessions or agents.',
+  },
+  {
     key: 'sessionFileReferences',
     pkg: 'api-session-controller',
     title: 'Session-addressed file-reference Remote adapter',

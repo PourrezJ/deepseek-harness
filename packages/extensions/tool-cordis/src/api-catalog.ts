@@ -1130,6 +1130,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'harnessSupervisorMcp',
+    summary: 'Harness-hosted loopback Streamable HTTP MCP server.',
+    description: 'Harness-hosted loopback Streamable HTTP MCP server.',
+    methods: [],
+  },
+  {
     key: 'hmr',
     summary: 'Hot reload service with Cordis-compatible module configuration and events.',
     description: 'Hot reload service with Cordis-compatible module configuration and events.',

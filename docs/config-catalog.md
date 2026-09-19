@@ -1055,6 +1055,24 @@ export interface Config {
 
 Source: [`packages/host/frontend-static/src/index.ts:30`](../packages/host/frontend-static/src/index.ts)
 
+<a id="deepseek-aidsh-host-harness-supervisor-mcp"></a>
+
+## `@deepseek-ai/dsh-host-harness-supervisor-mcp`
+
+Requires: `sessionController`
+
+```ts config-catalog
+/** Loopback endpoint configuration. */
+export interface Config {
+  /** Loopback TCP port. Use 0 for an ephemeral test port. */
+  readonly port: number
+  /** Streamable HTTP MCP pathname. */
+  readonly path: string
+}
+```
+
+Source: [`packages/host/harness-supervisor-mcp/src/index.ts:36`](../packages/host/harness-supervisor-mcp/src/index.ts)
+
 <a id="deepseek-aidsh-host-open-in-app"></a>
 
 ## `@deepseek-ai/dsh-host-open-in-app`
