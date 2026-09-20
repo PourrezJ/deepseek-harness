@@ -892,12 +892,6 @@ describe('mapStopReason / mapUsage', () => {
       .toMatchObject({ kind: 'error', failure: { code: 'QUOTA' } })
     expect(mapStopReason(assistant({
       stopReason: 'error',
-      errorMessage: 'HTTP 429: daily free limit reached on model (account_model_quota/INFERENCE_CAP_ERROR)',
-    }))).toMatchObject({ kind: 'error', failure: { code: 'QUOTA' } })
-    expect(mapStopReason(assistant({ stopReason: 'error', errorMessage: 'HTTP 429: INFERENCE_CAP_ERROR' })))
-      .toMatchObject({ kind: 'error', failure: { code: 'RATE_LIMIT' } })
-    expect(mapStopReason(assistant({
-      stopReason: 'error',
       errorMessage: 'OpenAI API error (429): You exceeded your current quota, please check your plan and billing details.',
     }))).toMatchObject({ kind: 'error', failure: { code: 'QUOTA' } })
     expect(mapStopReason(assistant({ stopReason: 'error', errorMessage: 'HTTP 500: backend down' })))

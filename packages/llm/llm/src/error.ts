@@ -97,12 +97,6 @@ export function isQuotaExceededError(detail: string): boolean {
     || /\bexceed(?:ed|s)?[\s_-]+(?:(?:your|the)[\s_-]+)?(?:current[\s_-]+)?quota\b/i.test(detail)
     || /\b(?:balance|credits?)[\s_-]+(?:exhausted|depleted)\b/i.test(detail)
     || /\bout[\s_-]+of[\s_-]+(?:credits?|budget)\b/i.test(detail)
-    // Cline's free-model allowance is scoped to the authenticated account +
-    // model. Its gateway may surface either the human wording or the stable
-    // local class. Both are terminal quota exhaustion, not a transient 429.
-    || /\bdaily[\s_-]+free(?:[\s_-]+model)?[\s_-]+limit[\s_-]+reached\b/i.test(detail)
-    || /\baccount[\s_-]+model[\s_-]+quota\b/i.test(detail)
-    || /\bquota[\s_-]+limited\b/i.test(detail)
 }
 
 /**
