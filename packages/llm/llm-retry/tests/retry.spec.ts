@@ -435,6 +435,69 @@ describe('provider-routed retry policy', () => {
     expect(vi.getTimerCount()).toBe(0)
   })
 
+  it.each([
+    ['RATE_LIMIT', 429],
+    ['QUOTA', 429],
+    ['INVALID_REQUEST', 413],
+    ['CONTEXT_WINDOW_EXCEEDED', 400],
+  ] as const)(
+    'does not retry %s when a gateway route allows only transport/server recovery',
+    async (code, status) => {
+      vi.useFakeTimers()
+      const adapter = new ScriptedAdapter([new LlmError('terminal gateway failure', code, { status })])
+      ;({ ctx: context } = await harness(adapter, {
+        mock: normalConfig({
+          maxRetries: 2,
+          retryableCodes: ['SERVER', 'TIMEOUT', 'TRANSPORT'],
+          backoff: { initialDelayMs: 1_000, maxDelayMs: 4_000, jitterRatio: 0.1 },
+        }),
+      }))
+      const agent = await context.agentLoop.create(SessionId(`retry-gateway-terminal-${code}`), {
+        provider: 'mock',
+        model: 'mock',
+      })
+      const idle = waitForIdle(context, agent)
+
+      agent.followup(createUserMessage({ content: [{ type: 'text', text: 'go' }], source: { kind: 'user' } }))
+      await idle
+
+      expect(adapter.requests).toHaveLength(1)
+      expect(agent.session.snapshotEvents().some(event => event.type === 'llm/retry')).toBe(false)
+      expect(vi.getTimerCount()).toBe(0)
+    },
+  )
+
+  it.each(['SERVER', 'TIMEOUT', 'TRANSPORT'] as const)(
+    'keeps one bounded retry path for configured transient %s failures',
+    async (code) => {
+      vi.useFakeTimers()
+      const adapter = new ScriptedAdapter([
+        new LlmError('transient gateway failure', code),
+        textResponse('recovered'),
+      ])
+      ;({ ctx: context } = await harness(adapter, {
+        mock: normalConfig({
+          maxRetries: 2,
+          retryableCodes: ['SERVER', 'TIMEOUT', 'TRANSPORT'],
+          backoff: { initialDelayMs: 1, maxDelayMs: 4, jitterRatio: 0 },
+        }),
+      }))
+      const agent = await context.agentLoop.create(SessionId(`retry-gateway-transient-${code}`), {
+        provider: 'mock',
+        model: 'mock',
+      })
+      const scheduled = waitForRetry(context, agent, 1)
+      agent.followup(createUserMessage({ content: [{ type: 'text', text: 'go' }], source: { kind: 'user' } }))
+
+      expect((await scheduled).data.failure.code).toBe(code)
+      const idle = waitForIdle(context, agent)
+      await vi.advanceTimersByTimeAsync(1)
+      await idle
+
+      expect(adapter.requests).toHaveLength(2)
+    },
+  )
+
   it('delegates when no final adapter served the failed request', async () => {
     const adapter = new ScriptedAdapter([textResponse('must not run')])
     const mounted = await harness(adapter, { mock: alwaysConfig() })

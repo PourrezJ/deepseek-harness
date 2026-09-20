@@ -129,9 +129,13 @@ describe('LlmRuntime', () => {
       'usage-limit-exceeded',
       'out of credits',
       'OpenAI API error (429): You exceeded your current quota, please check your plan and billing details.',
+      'HTTP 429: daily free limit reached on model',
+      'HTTP 429: account_model_quota',
+      'all active accounts are currently quota-limited for this model',
     ]) expect(isQuotaExceededError(detail)).toBe(true)
     expect(isQuotaExceededError('HTTP 429: rate limit reached')).toBe(false)
     expect(isQuotaExceededError('quota resets in one minute')).toBe(false)
+    expect(isQuotaExceededError('INFERENCE_CAP_ERROR')).toBe(false)
   })
 
   it('errorChain renders the full cause chain of a wrapped transport failure', () => {
